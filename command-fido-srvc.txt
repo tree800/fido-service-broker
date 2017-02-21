@@ -1,0 +1,99 @@
+### FIDO-SRVC-BROKER ###
+
+
+# 애플리케이션 테스트
+
+어플리케이션 이름 : my-bmx-mobile-app 	* 이름 변경 : your-bmx-mobile-app
+
+1. 모바일 애플리케이션 디플로이
+git clone https://github.com/jeongkm/my-bmx-mobile-app.git ./my-bmx-mobile-app
+cd my-bmx-mobile-app
+vi manifest.yml
+	*** name/host 변경 : my-bmx-mobile-app
+cf push my-bmx-mobile-app
+
+2. 애플리케이션 동작 확인
+curl https://my-bmx-mobile-app.mybluemix.net/
+
+3. 어플리케이션 제거
+cf delete my-bmx-mobile-app -r
+y
+
+
+# 서비스 브로커 테스트
+
+서비스 브로커 이름 : fido-srvc-broker 	* 이름 변경 : your-fido-srvc-broker-name
+서비스 이름 : fido-service 	* 이름 변경 : your-fido-service
+서비스 플랜 이름 : fidoplana, fidoplanb
+
+1. 서비스 브로커 앱 디플로이
+git clone https://github.com/jeongkm/fido-srvc-broker.git ./fido-srvc-broker
+cd fido-srvc-broker
+vi fido-srvc-broker.py
+  **** 91라인 fido-service의 name 변경 : cf-pseudo-service	* 이름 변경 : your-pseudo-service
+cf push fido-srvc-broker
+
+
+2. 서비스 브로커 등록
+cf create-service-broker fido-srvc-broker fido-user fido-pwd http://fido-srvc-broker.mybluemix.net --space-scoped
+cf service-brokers
+
+
+3. 서비스 프로비저닝
+cf create-service fido-service   fidoplana   plan-a-service
+cf create-service fido-service   fidoplanb   plan-b-service
+cf services
+
+4. 서비스 바인딩
+cf bind-service my-bmx-mobile-app   plan-a-service
+cf bind-service my-bmx-mobile-app   plan-b-service
+cf restage my-bmx-mobile-app
+
+
+5. 서비스 언바운드
+cf unbind-service my-bmx-mobile-app  plan-a-service
+cf unbind-service my-bmx-mobile-app  plan-b-service
+
+
+6. 서비스 제거 : de-provisioning
+cf delete-service plan-a-service
+y
+cf delete-service plan-b-service
+y
+
+
+
+7. 서비스 브로커 제거
+cf delete-service-broker fido-srvc-broker
+y
+
+8. 서비스 브로커 앱 제거
+cf delete fido-srvc-broker -r
+y
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# GIT 초기화 & 원격 저장소 코드 로딩
+
+git init
+git add *
+git commit -m "first commit"
+git remote add origin https://github.com/jeongkm/fido-srvc-broker.git
+git push -u origin master
+
