@@ -1,6 +1,7 @@
 ### FIDO-SERVICE-BROKER ###
 
 # 애플리케이션 테스트
+*** Provisioning된 서비스를 Binding할 대상 애플리케이션 (예제) - 실제 Binding될 애플리케이션은 RP Server 
 
 어플리케이션 이름 : my-bmx-mobile-app 	* 이름 변경 : your-bmx-mobile-app
 
@@ -20,12 +21,15 @@ cf delete my-bmx-mobile-app -r
 y
 
 
+
 # 서비스 브로커 테스트
 
-서비스 브로커 이름 : fido-service-broker 	* 이름 변경 : your-fido-srvc-broker-name
-서비스 이름 : my-fido-service 	* 이름 변경 : your-fido-service
+서비스 브로커 이름 : fido-service-broker 	
+	*** 이름 변경 : your-fido-srvc-broker-name
+서비스 이름 : my-fido-service 	
+	*** 이름 변경 : your-fido-service-name
 서비스 플랜 이름 : fidoplan-a, fidoplan-b
-
+	*** 이름 변경 : your-fido-plan-name
 
 1. 서비스 브로커 앱 디플로이
 git clone https://github.com/jeongkm/fido-service-broker.git ./fido-service-broker
@@ -36,6 +40,7 @@ vi fido-service-broker.py
 vi procfile
 	*** 파일이름 확인 : fido-service-broker.py
 cf push fido-service-broker
+	*** 서비스브로커 이름 변경 : you-fido-service-broker-name
 
 
 2. 서비스 브로커 등록
@@ -59,7 +64,7 @@ cf bind-service my-bmx-mobile-app   fidoplan-a-service
 cf bind-service my-bmx-mobile-app   fidoplan-b-service
 	*** 변경 : 애플리케이션이름	바인딩할서비스이름	
 
-cf restage my-bmx-mobile-app	# 바인딩된 애플리케이션 재시작
+cf restage my-bmx-mobile-app	# 서비스가 바인딩된 애플리케이션 재시작
 
 
 5. 서비스 언바운드
