@@ -7,7 +7,7 @@ import uuid
 from cloudant import Cloudant
 
 ## DB Setup 
-db_name = 'fidoSvcDB'
+db_name = 'fidodb'
 client = None
 db = None
 
