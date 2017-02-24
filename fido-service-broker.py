@@ -117,6 +117,7 @@ fido_service = {
                     'description': 'fido service to showcase management of private brokers',
                     'bindable': True, 
                     'tags' : ['private'], 
+                    "plan_updateable": True,
                     'plans': [fido_plan_a, fido_plan_b],
                     'dashboard_client': {'id': uuid.uuid4(), 'secret': 'secret-1', 'redirect_uri' : 'http://bluemix.net' },
                     'metadata':{
