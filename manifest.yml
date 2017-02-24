@@ -1,0 +1,5 @@
+---
+applications:
+ - name: Fido-Python-Broker
+   random-route: true
+   memory: 128M
