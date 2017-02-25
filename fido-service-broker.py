@@ -85,6 +85,10 @@ create_user_id = "fido-service-broker";
 # api_key = ""; # {spName}.key = {Service Provider API Key}
 service_instance_doc = {
     "instanceId" : "",
+    "planId" : "",
+    "serviceId" : "",
+    "orgId" : "",
+    "spaceGuid" : "",    
     "rpId" : "",
     "rpName" : "",
     "appId" : "",
@@ -95,6 +99,9 @@ service_instance_doc = {
 service_binding_doc = {
     "instanceId" : "",
     "bindingId" : "",
+    "planId" : "",
+    "serviceId" : "",
+    "appGuid" : "",
     "bindingDetails" : {
         "credentials" : {
             "apiKey" : "",
@@ -262,11 +269,17 @@ def provision(instance_id):
     
     # get the JSON document in the BODY
     provision_details = request.get_json(force=True)
+    print("Provision details : " + provision_details)
 
-
+    ### TODO
+    # 1. Check the document of specific instance is already exist in db
+    #   1-a. if exist, return with "already exist"
+    #   1-b. if not, store the document with instance id    <createServiceInstance>
+    #       service_instance_doc = {"instanceId" : "","rpId" : "","rpName" : “","appId" : "", "createUserId" : "","apiKey" : "" }
 
     # Save API Key and RP ID from FidoAdmin
     print("In provision instance_id : " + instance_id)
+
     if client:
         apikey_data = {'API_Key':'1234567890'}
         rp_id = {'rp_id':'0987654321'}
@@ -278,7 +291,6 @@ def provision(instance_id):
     # return basic service information
     new_service = { "dashboard_url": service_dashboard+instance_id }
     return jsonify(new_service)
-
 
 #
 # Deprovision
@@ -297,6 +309,13 @@ def deprovision(instance_id):
 
     # deprovision would call the service here
     # not done to keep our code simple for the tutorial
+
+    ### TODO
+    # 1. Check the document of specific instance is exist in db
+    #   1-a. if exist, delete the document from db      <deleteServiceInstance>
+    #       2. if binding doc for this instance exist, delete them all <unbindAllForServiceInstance>
+    #   1-b. if not, return empty_result
+
     return jsonify(empty_result)
 
 #
@@ -330,15 +349,29 @@ def bind(instance_id, binding_id):
 
     # get the JSON document in the BODY
     binding_details = request.get_json()
+    print("Binding details: " + binding_details)
 
     # bind would call the service here
     # not done to keep our code simple for the tutorial
 
+    ### TODO
+    # 1. Check the document of specific instance is already exist in db
+    #   1-a. if exist, retrieve the ApiKey 
+    #       2. Check whether Binding Doc exist
+    #           2-a. if exist, update it with new values then return normal
+    #           2-b. if not, create new ServiceBindingDoc   <bindServiceInstance>
+    #   1-b. if not, return error
+
 
     # return result to the Bluemix Cloud Controller
-    result={"credentials": {"uri": "http://www.samsungsds.com/us/en/index.html", 
-                            "user":"fido-user", 
-                            "password":"fido-password"}}
+    result = {  
+        "credentials" : {
+            "apiKey" : uuid.uuid4(),    # this value will be retrieved from ServiceInstanceDoc 
+            "rpId" : "",    # remove if unnecessary
+            "appId" : ""    # remove if unnecessary
+        }
+    }
+
     return make_response(jsonify(result),201)
 
 #
@@ -358,6 +391,10 @@ def unbind(instance_id, binding_id):
 
     # unbind would call the service here
     # not done to keep our code simple for the tutorial
+
+    # 1. Check whether Binding Doc exist
+    #   1-a. if exist, remove the doc from db   <unbindServiceInstance>
+    #   1-b. if not, return empty result
 
     return jsonify(empty_result)
 
@@ -389,19 +426,6 @@ def unbindServiceInstance(instance_id, binding_id):
     return jsonify(empty_result)
 def unbindAllForServiceInstance(instance_id):
     return jsonify(empty_result)
-
-# @app.route('/fido-service/<instance_id>', methods=['PUT','GET','DELETE'])
-# def provision_service(instance_id):
-#     service_info={"greeting" : instance_id}
-#     return jsonify(service_info)
-
-# @app.route('/fido-service/<instance_id>/<binding_id>', methods=['PUT','GET','DELETE'])
-# def bind_service(instance_id, binding_id):
-#     if request.headers['Content-Type'] != 'application/json':
-#         abort(415, 'Unsupported Content-Type: expecting application/json')
-#     service_info={"instance_id" : instance_id, "binding_id" : binding_id}
-#     return jsonify(service_info)
-
 
 ########################################################
 # Catch-all section - return HTML page for testing
