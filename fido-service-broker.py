@@ -274,8 +274,7 @@ def provision(instance_id):
     ### TODO
     # 1. Check the document of specific instance is already exist in db
     #   1-a. if exist, return with "already exist"
-    #   1-b. if not, store the document with instance id    <createServiceInstance>
-    #       service_instance_doc = {"instanceId" : "","rpId" : "","rpName" : “","appId" : "", "createUserId" : "","apiKey" : "" }
+    #   1-b. if not, store the new service_instance_doc    <createServiceInstance>
 
     # Save API Key and RP ID from FidoAdmin
     print("In provision instance_id : " + instance_id)
