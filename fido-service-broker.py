@@ -72,7 +72,8 @@ service_dashboard = "http://"+service_base+"/fido-service/dashboard/"
 # Global Variables : FIDO Specific
 #############################################################
 
-# Where to get these information?
+# Where to get these information? How to insert the values for each?
+# Provide a REST API to set the values ?  OR  use config.json ?
 fido_admin_url = "https://fido.mybluemix.net";    # {spName}.url = {FIDO Server URL}
 
 rp_id = "rp-id-sample";     
@@ -83,22 +84,22 @@ create_user_id = "fido-service-broker";
 
 # api_key = ""; # {spName}.key = {Service Provider API Key}
 service_instance_doc = {
-    instanceId : "",
-    rpId : "",
-    rpName : "",
-    appId : "",
-    createUserId : "",
-    apiKey : ""
+    "instanceId" : "",
+    "rpId" : "",
+    "rpName" : "",
+    "appId" : "",
+    "createUserId" : "",
+    "apiKey" : ""
 }
 
 service_binding_doc = {
-    instanceId : "",
-    bindingId : "",
-    bindingDetails: {
-        credentials : {
-            apiKey : "",
+    "instanceId" : "",
+    "bindingId" : "",
+    "bindingDetails" : {
+        "credentials" : {
+            "apiKey" : "",
         },
-        syslog_drain_url: ""
+        "syslog_drain_url" : ""
     }
 }
 
@@ -261,6 +262,8 @@ def provision(instance_id):
     
     # get the JSON document in the BODY
     provision_details = request.get_json(force=True)
+
+
 
     # Save API Key and RP ID from FidoAdmin
     print("In provision instance_id : " + instance_id)
