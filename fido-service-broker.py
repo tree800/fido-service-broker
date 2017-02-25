@@ -85,26 +85,29 @@ create_user_id = "fido-service-broker";
 # api_key = ""; # {spName}.key = {Service Provider API Key}
 service_instance_doc = {
     "instanceId" : "",
-    "planId" : "",
-    "serviceId" : "",
-    "orgId" : "",
-    "spaceGuid" : "",    
-    "rpId" : "",
-    "rpName" : "",
-    "appId" : "",
-    "createUserId" : "",
+    "planId" : "",  # no need to store
+    "serviceId" : "",  # no need to store
+    "orgId" : "",  # no need to store
+    "spaceGuid" : "",      # no need to store
+    "rpId" : "",    # Generate GUID from here(Service Broker), Pass it to RP Server Application when it's binding the service instance 
+    "rpName" : "",    # Generate GUID from here(Service Broker), Pass it to RP Server Application when it's binding the service instance
+    "appId" : "",    # Generate GUID from here(Service Broker), Pass it to RP Server Application when it's binding the service instance
+    "createUserId" : "",    # Service Broker
     "apiKey" : ""
 }
 
 service_binding_doc = {
     "instanceId" : "",
     "bindingId" : "",
-    "planId" : "",
-    "serviceId" : "",
-    "appGuid" : "",
+    "planId" : "",  # no need to store
+    "serviceId" : "",  # no need to store
+    "appGuid" : "",  # no need to store
     "bindingDetails" : {
         "credentials" : {
-            "apiKey" : "",
+            "rpId" : "",    # Retrieve from service_instance_doc
+            "rpName" : "",    # Retrieve from service_instance_doc
+            "appId" : "",    # Retrieve from service_instance_doc
+            "apiKey" : "",    # Retrieve from service_instance_doc
         },
         "syslog_drain_url" : ""
     }
