@@ -6,7 +6,9 @@ import json
 import uuid
 from cloudant import Cloudant
 
-## DB Setup 
+#############################################################
+# Database Setup : cloudant nosql db
+#############################################################
 db_name = 'fidodb'
 client = None
 db = None
@@ -32,12 +34,16 @@ elif os.path.isfile('vcap-local.json'):
         client = Cloudant(user, password, url=url, connect=True)
         db = client.create_database(db_name, throw_on_exists=False)
 
-# Which API version do we support?
-X_BROKER_API_VERSION = 2.11
-X_BROKER_API_VERSION_NAME = 'X-Broker-Api-Version'
+#############################################################
+# Global Variables
+#############################################################
 
 # Start Flask
 app = Flask(__name__)
+
+# Which CF Service Broker API version do we support?
+X_BROKER_API_VERSION = 2.11
+X_BROKER_API_VERSION_NAME = 'X-Broker-Api-Version'
 
 # Configure our test username
 app.config['BASIC_AUTH_USERNAME'] = 'fido-user'
@@ -59,91 +65,134 @@ else:
     # we are local, so set service base
     service_base = "localhost:5000"
 
+service_dashboard = "http://"+service_base+"/fido-service/dashboard/"
 
-service_instance = "http://"+service_base+"/my-fido-service/"
-service_dashboard = "http://"+service_base+"/my-fido-service/dashboard/"
 
-# plans
+#############################################################
+# Global Variables : FIDO Specific
+#############################################################
+
+# Where to get these information?
+fido_admin_url = "https://fido.mybluemix.net";    # {spName}.url = {FIDO Server URL}
+
+rp_id = "rp-id-sample";     
+rp_name = "rp-name-sample";
+app_id = "https://rp.mybluemix.net"; 
+create_user_id = "fido-service-broker";
+
+
+# api_key = ""; # {spName}.key = {Service Provider API Key}
+service_instance_doc = {
+    instanceId : "",
+    rpId : "",
+    rpName : "",
+    appId : "",
+    createUserId : "",
+    apiKey : ""
+}
+
+service_binding_doc = {
+    instanceId : "",
+    bindingId : "",
+    bindingDetails: {
+        credentials : {
+            apiKey : "",
+        },
+        syslog_drain_url: ""
+    }
+}
+
+
+#############################################################
+# Definition of Service and Plans : Sample
+#############################################################
+
+# Plans
 fido_plan_a = {
-                "name":"fidoplan-a",
-                "description":"Describe the characteristics of this plan. For example, Dedicated schema and tablespace per service instance on a shared server. 1GB and 10GB of compressed database storage can hold up to 5GB and 50GB of uncompressed data respectively based on typical compression ratios.",
-                "free":True,
-                "id":uuid.uuid4(), # SHOULD BE UNIQUE
-                "metadata":{
-                   "bullets":[
-                      "A description of the resources that can be used with the plan.",
-                      "1 Auth Module per instance. Can host 100 concurrent auth operation.",
-                      "1 GB Min per instance. 10 GB Max per instance.",
-                   ],
-                   "costs":[
-                      {
-                         "unitId":"INSTANCES_PER_MONTH",
-                         "unit":"MONTHLY",
-                         "partNumber":""
-                      }
-                   ],
-                   "displayName":"fidoPlanA"
-                }
-             }
+    "name" : "fidoplan-a",
+    "description" : "Describe the characteristics of this plan. For example, Dedicated schema and tablespace per service instance on a shared server. 1GB and 10GB of compressed database storage can hold up to 5GB and 50GB of uncompressed data respectively based on typical compression ratios.",
+    "free" : True,
+    "id" : uuid.uuid4(), # SHOULD BE UNIQUE
+    "metadata" : {
+        "bullets" :[
+            "A description of the resources that can be used with the plan.",
+            "1 Auth Module per instance. Can host 100 concurrent auth operation.",
+            "1 GB Min per instance. 10 GB Max per instance."
+        ],
+        "costs":[
+            {
+                "unitId" : "INSTANCES_PER_MONTH",
+                "unit" : "MONTHLY",
+                "partNumber" : ""
+            }
+        ],
+    "displayName":"fidoPlanA"
+    }
+}
 
 fido_plan_b = {
-                "name":"fidoplan-b",
-                "description":"Describe the characteristics of this plan. For example, Dedicated schema and tablespace per service instance on a shared server. 1GB and 10GB of compressed database storage can hold up to 5GB and 50GB of uncompressed data respectively based on typical compression ratios.",
-                "free":True,
-                "id":uuid.uuid4(), # SHOULD BE UNIQUE
-                "metadata":{
-                   "bullets":[
-                      "A description of the resources that can be used with the plan.",
-                      "10 Auth Module per instance. Can host 1000 concurrent auth operation.",
-                      "10 GB Min per instance. 100 GB Max per instance.",
-                   ],
-                   "costs":[
-                      {
-                         "unitId":"INSTANCES_PER_MONTH",
-                         "unit":"MONTHLY",
-                         "partNumber":""
-                      }
-                   ],
-                   "displayName":"fidoPlanB"
-                }
-             }
+    "name" : "fidoplan-b",
+    "description" : "Describe the characteristics of this plan. For example, Dedicated schema and tablespace per service instance on a shared server. 1GB and 10GB of compressed database storage can hold up to 5GB and 50GB of uncompressed data respectively based on typical compression ratios.",
+    "free" : True,
+    "id" : uuid.uuid4(), # SHOULD BE UNIQUE
+    "metadata" : {
+        "bullets" :[
+            "A description of the resources that can be used with the plan.",
+            "10 Auth Module per instance. Can host 1000 concurrent auth operation.",
+            "10 GB Min per instance. 100 GB Max per instance.",
+        ],
+        "costs" :[
+            {
+                "unitId" : "INSTANCES_PER_MONTH",
+                "unit" : "MONTHLY",
+                "partNumber" : ""
+            }
+        ],
+        "displayName":"fidoPlanB"
+    }
+}
 
 
-# services
-# Generate unique service ID
-fido_service_id=uuid.uuid4()
+# Service
+fido_service_id = uuid.uuid4() # Generate unique service ID
 fido_service = {
-                    'id': fido_service_id, 'name': 'sds-fido-service',
-                    'description': 'fido service to showcase management of private brokers',
-                    'bindable': True, 
-                    'tags' : ['private'], 
-                    "plan_updateable": True,
-                    'plans': [fido_plan_a, fido_plan_b],
-                    'dashboard_client': {'id': uuid.uuid4(), 'secret': 'secret-1', 'redirect_uri' : 'http://bluemix.net' },
-                    'metadata':{
-                        'displayName':'Fido Service',
-                        'serviceMonitorApi':'https://cf-upsi-app.mybluemix.net/healthcheck',
-                        'providerDisplayName':'S.D.S',
-                        'longDescription':'Write full description of fido service',
-                        'bullets':[
-                            {
-                               'title':'Fast and Simple',
-                               'description':'FIDO Service uses dynamic in-memory columnar technology and innovations, such as parallel vector processing and actionable compression to rapidly scan and return relevant data.'
-                            },
-                            {
-                               'title':'Connectivity',
-                               'description':'FIDO Service is built to let you connect easily and to all of your services and applications. You can start analyzing your data immediately with familiar tools.'
-                            }
-                         ],
-                         'featuredImageUrl':'https://cf-upsi-app.mybluemix.net/images/fidoimg-64x64.png',
-                         'imageUrl':'https://cf-upsi-app.mybluemix.net/images/fidoimg-50x50.png',
-                         'mediumImageUrl':'https://cf-upsi-app.mybluemix.net/images/fidoimg-32x32.png',
-                         'smallImageUrl':'https://cf-upsi-app.mybluemix.net/images/fidoimg-24x24.png',
-                         'documentationUrl':'http://www.samsungsds.com/us/en/solutions/off/nex/nexsign.html',
-                         'instructionsUrl':'http://www.samsungsds.com/us/en/solutions/off/nex/nexsign.html',
-                         'termsUrl':'https://media.termsfeed.com/pdf/terms-and-conditions-template.pdf'
-                    }
-                }
+    'id' : fido_service_id, 
+    'name' : 'sds-fido-service',
+    'description' : 'fido service to showcase management of private brokers',
+    'bindable' : True, 
+    'tags' : ['private'], 
+    'plan_updateable' : True,
+    'plans' : [fido_plan_a, fido_plan_b],
+    'dashboard_client' : {
+        'id' : uuid.uuid4(),
+        'secret' : 'secret-1',
+        'redirect_uri' : 'http://bluemix.net'
+    },
+    'metadata' : {
+        'displayName' : 'Fido Service',
+        'serviceMonitorApi' : 'https://cf-upsi-app.mybluemix.net/healthcheck',
+        'providerDisplayName' : 'S.D.S',
+        'longDescription' : 'Write full description of fido service',
+        'bullets' : [
+            {
+                'title' : 'Fast and Simple',
+                'description' : 'FIDO Service uses dynamic in-memory columnar technology and innovations, such as parallel vector processing and actionable compression to rapidly scan and return relevant data.'
+            },
+            {
+                'title' : 'Connectivity',
+                'description' :' FIDO Service is built to let you connect easily and to all of your services and applications. You can start analyzing your data immediately with familiar tools.'
+            }
+        ],
+        'featuredImageUrl' : 'https://cf-upsi-app.mybluemix.net/images/fidoimg-64x64.png',
+        'imageUrl' : 'https://cf-upsi-app.mybluemix.net/images/fidoimg-50x50.png',
+        'mediumImageUrl' : 'https://cf-upsi-app.mybluemix.net/images/fidoimg-32x32.png',
+        'smallImageUrl' : 'https://cf-upsi-app.mybluemix.net/images/fidoimg-24x24.png',
+        'documentationUrl' : 'http://www.samsungsds.com/us/en/solutions/off/nex/nexsign.html',
+        'instructionsUrl' : 'http://www.samsungsds.com/us/en/solutions/off/nex/nexsign.html',
+        'termsUrl' : 'https://media.termsfeed.com/pdf/terms-and-conditions-template.pdf'
+    }
+}
+
 
 ########################################################
 # Implement Cloud Foundry Broker API
@@ -206,9 +255,12 @@ def provision(instance_id):
 
     if request.headers['Content-Type'] != 'application/json':
         abort(415, 'Unsupported Content-Type: expecting application/json')
+
+    # provision the service by calling out to the service itself
+    # not done here to keep the code simple for the tutorial
+    
     # get the JSON document in the BODY
     provision_details = request.get_json(force=True)
-
 
     # Save API Key and RP ID from FidoAdmin
     print("In provision instance_id : " + instance_id)
@@ -220,15 +272,8 @@ def provision(instance_id):
     else:
         print('No database')
 
-
-    # provision the service by calling out to the service itself
-    # not done here to keep the code simple for the tutorial
-
     # return basic service information
-    new_service={"dashboard_url": service_dashboard+instance_id}
-    # new_service={
-    #      "dashboard\_url": "http://my-bmx-mobile-app.mybluemix.net",
-    #      "operation": "task\_10"}
+    new_service = { "dashboard_url": service_dashboard+instance_id }
     return jsonify(new_service)
 
 
@@ -313,33 +358,46 @@ def unbind(instance_id, binding_id):
 
     return jsonify(empty_result)
 
-
 ########################################################
 # Service-related functions for some additional testing
 #
 #
 ########################################################
 
-@app.route('/my-fido-service/<instance_id>', methods=['PUT','GET','DELETE'])
-def provision_service(instance_id):
-    service_info={"greeting" : instance_id}
-    return jsonify(service_info)
-
-@app.route('/my-fido-service/dashboard/<instance_id>', methods=['GET'])
+@app.route('/fido-service/dashboard/<instance_id>', methods=['GET'])
 def dashboard(instance_id):
     # hardcoded HTML, but could be a rendered template, too
+    # Consider offering customized page for different instances
     dashboard_page = "<img src='http://contents.dt.co.kr/images/201510/2015102802101860727001[2].jpg' />"
-    dashboard_page += "<h3>Greetings, oh cloud enthusiast!</h3> You discovered the dashboard... :)"
+    dashboard_page += "<h3>Welcome!!</h3> You discovered the dashboard for instance : " + instance_id;
     dashboard_page += "<img src='http://news.samsungsds.com/wp-content/uploads/2016/10/19-2.jpg' />"
     return dashboard_page
 
+# SERVICE INSTANCE
+def createServiceInstance(instance_id, req_body):
+    return jsonify(empty_result)
+def deleteServiceInstance(instance_id):
+    return jsonify(empty_result)
 
-@app.route('/my-fido-service/<instance_id>/<binding_id>', methods=['PUT','GET','DELETE'])
-def bind_service(instance_id, binding_id):
-    if request.headers['Content-Type'] != 'application/json':
-        abort(415, 'Unsupported Content-Type: expecting application/json')
-    service_info={"instance_id" : instance_id, "binding_id" : binding_id}
-    return jsonify(service_info)
+# BINDING
+def bindServiceInstance(instance_id, binding_id, service):
+    return jsonify(empty_result)
+def unbindServiceInstance(instance_id, binding_id):
+    return jsonify(empty_result)
+def unbindAllForServiceInstance(instance_id):
+    return jsonify(empty_result)
+
+# @app.route('/fido-service/<instance_id>', methods=['PUT','GET','DELETE'])
+# def provision_service(instance_id):
+#     service_info={"greeting" : instance_id}
+#     return jsonify(service_info)
+
+# @app.route('/fido-service/<instance_id>/<binding_id>', methods=['PUT','GET','DELETE'])
+# def bind_service(instance_id, binding_id):
+#     if request.headers['Content-Type'] != 'application/json':
+#         abort(415, 'Unsupported Content-Type: expecting application/json')
+#     service_info={"instance_id" : instance_id, "binding_id" : binding_id}
+#     return jsonify(service_info)
 
 
 ########################################################
@@ -351,9 +409,9 @@ def bind_service(instance_id, binding_id):
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
-    page = '<title>fido Broker</title>'
-    page += '<h1>fido Broker</h1>'
-    page += '<p>See <a href="https://github.com/jeongkm/fido-srvc-broker">the related GitHub repository</a> for details.</p>'
+    page = '<title>Fido Service Broker</title>'
+    page += '<h2>This is a sample service broker for Samsung SDS Nexsign: Fido Solution</h2>'
+    page += '<p>See <a href="https://github.com/Mike-msoh/fido-service-broker">the related GitHub repository</a> for details.</p>'
     page += '<p>You requested path: /%s </p>' % path
     return page
 
@@ -362,3 +420,5 @@ port = os.getenv('PORT', '5000')
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(port),threaded=True)
     #app.run(host='0.0.0.0', port=int(port),debug=True,threaded=True)
+
+
