@@ -366,13 +366,15 @@ def bind(instance_id, binding_id):
 
 
     # return result to the Bluemix Cloud Controller
-    result = {  
-        "credentials" : {
-            "apiKey" : uuid.uuid4(),    # this value will be retrieved from ServiceInstanceDoc 
-            "rpId" : "",    # remove if unnecessary
-            "appId" : ""    # remove if unnecessary
-        }
-    }
+    # result = {  
+    #     "credentials" : {
+    #         "apiKey" : uuid.uuid4(),    # this value will be retrieved from ServiceInstanceDoc 
+    #         "rpId" : "",    # remove if unnecessary
+    #         "appId" : ""    # remove if unnecessary
+    #     }
+    # }
+
+    result={"credentials": {"uri": "testme"}}
 
     return make_response(jsonify(result),201)
 
@@ -415,19 +417,19 @@ def dashboard(instance_id):
     dashboard_page += "<img src='http://news.samsungsds.com/wp-content/uploads/2016/10/19-2.jpg' />"
     return dashboard_page
 
-# SERVICE INSTANCE
-def createServiceInstance(instance_id, req_body):
-    return jsonify(empty_result)
-def deleteServiceInstance(instance_id):
-    return jsonify(empty_result)
+# # SERVICE INSTANCE
+# def createServiceInstance(instance_id, req_body):
+#     return jsonify(empty_result)
+# def deleteServiceInstance(instance_id):
+#     return jsonify(empty_result)
 
-# BINDING
-def bindServiceInstance(instance_id, binding_id, service):
-    return jsonify(empty_result)
-def unbindServiceInstance(instance_id, binding_id):
-    return jsonify(empty_result)
-def unbindAllForServiceInstance(instance_id):
-    return jsonify(empty_result)
+# # BINDING
+# def bindServiceInstance(instance_id, binding_id, service):
+#     return jsonify(empty_result)
+# def unbindServiceInstance(instance_id, binding_id):
+#     return jsonify(empty_result)
+# def unbindAllForServiceInstance(instance_id):
+#     return jsonify(empty_result)
 
 ########################################################
 # Catch-all section - return HTML page for testing
