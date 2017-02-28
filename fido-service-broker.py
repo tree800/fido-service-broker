@@ -351,7 +351,7 @@ def bind(instance_id, binding_id):
 
     # get the JSON document in the BODY
     binding_details = request.get_json()
-    print("Binding details: " + binding_details)
+    print("Binding details: " , binding_details)
 
     # bind would call the service here
     # not done to keep our code simple for the tutorial
