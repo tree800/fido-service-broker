@@ -239,7 +239,7 @@ def catalog():
     services={"services": [fido_service]}
     return jsonify(services)
 
-
+'''
 #
 # Provision
 #
@@ -272,7 +272,7 @@ def provision(instance_id):
     
     # get the JSON document in the BODY
     provision_details = request.get_json(force=True)
-    print("Provision details : " + provision_details)
+    print("Provision details : ", provision_details)
 
     ### TODO
     # 1. Check the document of specific instance is already exist in db
@@ -280,7 +280,7 @@ def provision(instance_id):
     #   1-b. if not, store the new service_instance_doc    <createServiceInstance>
 
     # Save API Key and RP ID from FidoAdmin
-    print("In provision instance_id : " + instance_id)
+    print("In provision instance_id : ", instance_id)
 
     if client:
         apikey_data = {'API_Key':'1234567890'}
@@ -293,6 +293,51 @@ def provision(instance_id):
     # return basic service information
     new_service = { "dashboard_url": service_dashboard+instance_id }
     return jsonify(new_service)
+'''
+
+
+#
+# Provision new code
+#
+@app.route('/v2/service_instances/<instance_id>', methods=['PUT'])
+@basic_auth.required
+def provision(instance_id):
+    # Provision an instance of this service for the org/space
+    # as provided in the JSON data
+    #
+    # PUT /v2/service_instances/<instance_id>:
+    #    <instance_id> provided by Bluemix Cloud Controller,
+    #   used for future requests like bind, unbind and deprovision
+    #
+    # BODY:
+    #     {
+    #       "service_id":        "<service-guid>",
+    #       "plan_id":           "<plan-guid>",
+    #       "organization_guid": "<org-guid>",
+    #       "space_guid":        "<space-guid>"
+    #     }
+    #
+    # return:
+    #     JSON document with service details
+
+    if request.headers['Content-Type'] != 'application/json':
+        abort(415, 'Unsupported Content-Type: expecting application/json')
+
+    # provision the service by calling out to the service itself
+    # not done here to keep the code simple for the tutorial
+    
+    # get the JSON document in the BODY
+    provision_details = request.get_json(force=True)
+    print("Provision details : ", provision_details)
+
+    # Must have instance id
+    if instance_id != None:
+        new_service = { "dashboard_url": service_dashboard+instance_id }
+        return jsonify(new_service)
+    else:
+        bottle.abort(400, 'Must have instance_id')
+
+
 
 #
 # Deprovision
@@ -320,6 +365,7 @@ def deprovision(instance_id):
 
     return jsonify(empty_result)
 
+'''
 #
 # Bind
 #
@@ -377,6 +423,96 @@ def bind(instance_id, binding_id):
     result={"credentials": {"uri": "testme"}}
 
     return make_response(jsonify(result),201)
+'''
+
+#
+# Bind
+#
+@app.route('/v2/service_instances/<instance_id>/service_bindings/<binding_id>', methods=['PUT'])
+@basic_auth.required
+def bind(instance_id, binding_id):
+    # Bind an existing instance with the given org and space
+    #
+    # PUT /v2/service_instances/<instance_id>/service_bindings/<binding_id>:
+    #     <instance_id> is the Cloud Controller provided
+    #       value used to provision the instance
+    #     <binding_id> is provided by the Cloud Controller
+    #       and will be used for future unbind requests
+    #
+    # BODY:
+    #     {
+    #       "plan_id":           "<plan-guid>",
+    #       "service_id":        "<service-guid>",
+    #       "app_guid":          "<app-guid>"
+    #     }
+    #
+    # return:
+    #     JSON document with credentails and access details
+    #     for the service based on this binding
+    #     http://docs.cloudfoundry.org/services/binding-credentials.html
+
+    if request.headers['Content-Type'] != 'application/json':
+        abort(415, 'Unsupported Content-Type: expecting application/json')
+
+    # get the JSON document in the BODY
+    binding_details = request.get_json()
+    print("Binding details: " , binding_details)
+
+
+     '''
+     Bluemix returned binding info
+     ('Binding details: ‘, 
+        {
+        u'plan_id': u'2c441056-a48a-40d4-931e-616de3bfcb8d’, 
+        u'bind_resource’: 
+                                {
+                                  u'app_guid': u'26d8574e-7d90-4aa1-b0d7-b88e8ed2bc51’
+                                }, 
+        u'service_id': u'c45dcaa1-6dec-48ce-b6bc-b65cb96f437c’, 
+        u'app_guid': u'26d8574e-7d90-4aa1-b0d7-b88e8ed2bc51’
+       }
+    )
+     '''
+    #TODO : 
+    # Need to match the post headers and returned data in binding
+
+    #Prepare for headers
+    headers = {
+                'name':"TEST_RP_name", 
+                'appId':"https://samsung.com", 
+                'id':”rp20161016-1”, 
+                'createUserId':"createUserId"
+              }
+
+
+    #POST to Fido Admin to register client
+    #
+    try:
+        fido_response = requests.post(url, json={"redirect_uris":["https:/api/v1/relyingparties"]}, headers=headers,timeout=(10.0,10.0))
+        fido_response.raise_for_status()
+    except requests.exceptions.ConnectionError as e:
+        error_response['error'] = str(e.args[0])
+        return make_response(error_response,500)  # TODO to define error code
+    except requests.exceptions.ConnectTimeout as e:
+        error_response['error'] = 'Connection Timeout ' 
+        return make_response(error_response,500)  # TODO to define error code
+    except requests.exceptions.HTTPError as e:
+        error_response['error'] = str(e.args[0])
+        return make_response(error_response,500)  # TODO to define error code
+     
+
+    #Request Failed
+    if fido_response.status_code != 201:
+        error_response['error'] = 'fido registration failed. am error =  ' + str(fido_response.status_code)
+        return make_response(error_response,500)  # TODO to define error code
+
+    #Request Succeeded
+    if openam_response.status_code == 201:
+        fido_result = fido_response.json()
+        return make_response(fido_result,201) # TODO to define error code
+    else:
+        return make_response('{unknown}',500) # TODO to define error code
+
 
 #
 # Unbind
