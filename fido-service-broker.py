@@ -67,6 +67,11 @@ else:
 
 service_dashboard = "http://"+service_base+"/fido-service/dashboard/"
 
+credentials = {'credentials': { \
+        'uri': service_dashboard, \
+        'username': 'empty', \
+        'apiKey': 'empty', \
+      }}
 
 #############################################################
 # Global Variables : FIDO Specific
@@ -509,9 +514,25 @@ def bind(instance_id, binding_id):
     #Request Succeeded
     if openam_response.status_code == 201:
         fido_result = fido_response.json()
-        return make_response(fido_result,201) # TODO to define error code
+        #load credentials
+        credentials['credentials']['username'] = fido_result['id']
+        credentials['credentials']['apiKey'] = fido_result['apiKey']
+        return make_response(credentials,201) # TODO to define error code
     else:
         return make_response('{unknown}',500) # TODO to define error code
+
+
+    ''' 
+    The returned result from Samsung Fido in success :
+
+    {
+    "createUserId": "createUserId",
+    "status": "ENABLED",
+    "statusMessage": "success",
+    "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", "name": "adminapi20161847",
+    "id": "80b3af09-f901-4886-946c-c21c274a1dcc", "statusCode": "1200"
+    }
+    '''
 
 
 #
