@@ -481,18 +481,6 @@ def bind(instance_id, binding_id):
     binding_details = request.get_json()
     print("Binding details: " , binding_details)
 
-    #  Bluemix returned binding info
-    #  ('Binding details: ‘, 
-    #     {
-    #     u'plan_id': u'2c441056-a48a-40d4-931e-616de3bfcb8d’, 
-    #     u'bind_resource’: 
-    #                             {
-    #                               u'app_guid': u'26d8574e-7d90-4aa1-b0d7-b88e8ed2bc51’
-    #                             }, 
-    #     u'service_id': u'c45dcaa1-6dec-48ce-b6bc-b65cb96f437c’, 
-    #     u'app_guid': u'26d8574e-7d90-4aa1-b0d7-b88e8ed2bc51’
-    #    }
-    # )
 
     #TODO : 
     # Need to match the post headers and returned data in binding
