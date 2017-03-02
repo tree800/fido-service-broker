@@ -501,7 +501,7 @@ def bind(instance_id, binding_id):
     headers = {
                 'name':"TEST_RP_name", 
                 'appId':"https://samsung.com", 
-                'id':”rp20161016-1”, 
+                'id':"rp20161016-1", 
                 'createUserId':"createUserId"
               }
 
