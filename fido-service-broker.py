@@ -5,6 +5,7 @@ from flask_basicauth import BasicAuth
 import json
 import uuid
 from cloudant import Cloudant
+import fido_plans
 
 #############################################################
 # Database Setup : cloudant nosql db
@@ -124,49 +125,49 @@ service_binding_doc = {
 #############################################################
 
 # Plans
-fido_plan_a = {
-    "name" : "fidoplan-a",
-    "description" : "Describe the characteristics of this plan. For example, Dedicated schema and tablespace per service instance on a shared server. 1GB and 10GB of compressed database storage can hold up to 5GB and 50GB of uncompressed data respectively based on typical compression ratios.",
-    "free" : True,
-    "id" : uuid.uuid4(), # SHOULD BE UNIQUE
-    "metadata" : {
-        "bullets" :[
-            "A description of the resources that can be used with the plan.",
-            "1 Auth Module per instance. Can host 100 concurrent auth operation.",
-            "1 GB Min per instance. 10 GB Max per instance."
-        ],
-        "costs":[
-            {
-                "unitId" : "INSTANCES_PER_MONTH",
-                "unit" : "MONTHLY",
-                "partNumber" : ""
-            }
-        ],
-    "displayName":"fidoPlanA"
-    }
-}
+# fido_plan_a = {
+#     "name" : "fidoplan-a",
+#     "description" : "Describe the characteristics of this plan. For example, Dedicated schema and tablespace per service instance on a shared server. 1GB and 10GB of compressed database storage can hold up to 5GB and 50GB of uncompressed data respectively based on typical compression ratios.",
+#     "free" : True,
+#     "id" : uuid.uuid4(), # SHOULD BE UNIQUE
+#     "metadata" : {
+#         "bullets" :[
+#             "A description of the resources that can be used with the plan.",
+#             "1 Auth Module per instance. Can host 100 concurrent auth operation.",
+#             "1 GB Min per instance. 10 GB Max per instance."
+#         ],
+#         "costs":[
+#             {
+#                 "unitId" : "INSTANCES_PER_MONTH",
+#                 "unit" : "MONTHLY",
+#                 "partNumber" : ""
+#             }
+#         ],
+#     "displayName":"fidoPlanA"
+#     }
+# }
 
-fido_plan_b = {
-    "name" : "fidoplan-b",
-    "description" : "Describe the characteristics of this plan. For example, Dedicated schema and tablespace per service instance on a shared server. 1GB and 10GB of compressed database storage can hold up to 5GB and 50GB of uncompressed data respectively based on typical compression ratios.",
-    "free" : True,
-    "id" : uuid.uuid4(), # SHOULD BE UNIQUE
-    "metadata" : {
-        "bullets" :[
-            "A description of the resources that can be used with the plan.",
-            "10 Auth Module per instance. Can host 1000 concurrent auth operation.",
-            "10 GB Min per instance. 100 GB Max per instance.",
-        ],
-        "costs" :[
-            {
-                "unitId" : "INSTANCES_PER_MONTH",
-                "unit" : "MONTHLY",
-                "partNumber" : ""
-            }
-        ],
-        "displayName":"fidoPlanB"
-    }
-}
+# fido_plan_b = {
+#     "name" : "fidoplan-b",
+#     "description" : "Describe the characteristics of this plan. For example, Dedicated schema and tablespace per service instance on a shared server. 1GB and 10GB of compressed database storage can hold up to 5GB and 50GB of uncompressed data respectively based on typical compression ratios.",
+#     "free" : True,
+#     "id" : uuid.uuid4(), # SHOULD BE UNIQUE
+#     "metadata" : {
+#         "bullets" :[
+#             "A description of the resources that can be used with the plan.",
+#             "10 Auth Module per instance. Can host 1000 concurrent auth operation.",
+#             "10 GB Min per instance. 100 GB Max per instance.",
+#         ],
+#         "costs" :[
+#             {
+#                 "unitId" : "INSTANCES_PER_MONTH",
+#                 "unit" : "MONTHLY",
+#                 "partNumber" : ""
+#             }
+#         ],
+#         "displayName":"fidoPlanB"
+#     }
+# }
 
 
 # Service
@@ -178,7 +179,7 @@ fido_service = {
     'bindable' : True, 
     'tags' : ['private'], 
     'plan_updateable' : True,
-    'plans' : [fido_plan_a, fido_plan_b],
+    'plans' : [fido_plans.plan_a(), fido_plans.plan_b()],
     'dashboard_client' : {
         'id' : uuid.uuid4(),
         'secret' : 'secret-1',
@@ -279,6 +280,13 @@ def provision(instance_id):
     provision_details = request.get_json(force=True)
     print("Provision details : ", provision_details)
 
+    #  Bluemix Returned provision details
+    # ('Provision details : ', {u'plan_id': u'2c441056-a48a-40d4-931e-616de3bfcb8d', 
+    # u'space_guid': u'a328d651-a5a0-4d9d-b2ed-257802d11ba6', 
+    # u'organization_guid': u'408022b1-6e6e-42f3-8104-c767bf952945', 
+    # u'service_id': u'c45dcaa1-6dec-48ce-b6bc-b65cb96f437c'})
+
+
     ### TODO
     # 1. Check the document of specific instance is already exist in db
     #   1-a. if exist, return with "already exist"
@@ -298,6 +306,8 @@ def provision(instance_id):
     # return basic service information
     new_service = { "dashboard_url": service_dashboard+instance_id }
     return jsonify(new_service)
+
+
 
 '''
 
@@ -374,6 +384,73 @@ def deprovision(instance_id):
 #
 # Bind
 #
+# @app.route('/v2/service_instances/<instance_id>/service_bindings/<binding_id>', methods=['PUT'])
+# @basic_auth.required
+# def bind(instance_id, binding_id):
+#     # Bind an existing instance with the given org and space
+#     #
+#     # PUT /v2/service_instances/<instance_id>/service_bindings/<binding_id>:
+#     #     <instance_id> is the Cloud Controller provided
+#     #       value used to provision the instance
+#     #     <binding_id> is provided by the Cloud Controller
+#     #       and will be used for future unbind requests
+#     #
+#     # BODY:
+#     #     {
+#     #       "plan_id":           "<plan-guid>",
+#     #       "service_id":        "<service-guid>",
+#     #       "app_guid":          "<app-guid>"
+#     #     }
+#     #
+#     # return:
+#     #     JSON document with credentails and access details
+#     #     for the service based on this binding
+#     #     http://docs.cloudfoundry.org/services/binding-credentials.html
+
+#     if request.headers['Content-Type'] != 'application/json':
+#         abort(415, 'Unsupported Content-Type: expecting application/json')
+
+#     # get the JSON document in the BODY
+#     binding_details = request.get_json()
+#     print("Binding details: " , binding_details)
+
+#     # bind would call the service here
+#     # not done to keep our code simple for the tutorial
+
+#     ### TODO
+#     # 1. Check the document of specific instance is already exist in db
+#     #   1-a. if exist, retrieve the ApiKey 
+#     #       2. Check whether Binding Doc exist
+#     #           2-a. if exist, update it with new values then return normal
+#     #           2-b. if not, create new ServiceBindingDoc   <bindServiceInstance>
+#     #   1-b. if not, return error
+
+
+#     # return result to the Bluemix Cloud Controller
+#     # result = {  
+#     #     "credentials" : {
+#     #         "apiKey" : uuid.uuid4(),    # this value will be retrieved from ServiceInstanceDoc 
+#     #         "rpId" : "",    # remove if unnecessary
+#     #         "appId" : ""    # remove if unnecessary
+#     #     }
+#     # }
+
+#     result={"credentials":     {
+#     "createUserId": "createUserId",
+#     "status": "ENABLED",
+#     "statusMessage": "success",
+#     "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", 
+#     "name": "adminapi20161847",
+#     "id": "80b3af09-f901-4886-946c-c21c274a1dcc", 
+#     "statusCode": "1200"
+#     }}
+
+#     return make_response(jsonify(result),201)
+
+
+#
+# Bind
+#
 @app.route('/v2/service_instances/<instance_id>/service_bindings/<binding_id>', methods=['PUT'])
 @basic_auth.required
 def bind(instance_id, binding_id):
@@ -404,26 +481,32 @@ def bind(instance_id, binding_id):
     binding_details = request.get_json()
     print("Binding details: " , binding_details)
 
-    # bind would call the service here
-    # not done to keep our code simple for the tutorial
+    #  Bluemix returned binding info
+    #  ('Binding details: ‘, 
+    #     {
+    #     u'plan_id': u'2c441056-a48a-40d4-931e-616de3bfcb8d’, 
+    #     u'bind_resource’: 
+    #                             {
+    #                               u'app_guid': u'26d8574e-7d90-4aa1-b0d7-b88e8ed2bc51’
+    #                             }, 
+    #     u'service_id': u'c45dcaa1-6dec-48ce-b6bc-b65cb96f437c’, 
+    #     u'app_guid': u'26d8574e-7d90-4aa1-b0d7-b88e8ed2bc51’
+    #    }
+    # )
 
-    ### TODO
-    # 1. Check the document of specific instance is already exist in db
-    #   1-a. if exist, retrieve the ApiKey 
-    #       2. Check whether Binding Doc exist
-    #           2-a. if exist, update it with new values then return normal
-    #           2-b. if not, create new ServiceBindingDoc   <bindServiceInstance>
-    #   1-b. if not, return error
+    #TODO : 
+    # Need to match the post headers and returned data in binding
 
+    #Prepare for headers
+    headers = {
+                'name':"TEST_RP_name", 
+                'appId':"https://samsung.com", 
+                'id':”rp20161016-1”, 
+                'createUserId':"createUserId"
+              }
 
-    # return result to the Bluemix Cloud Controller
-    # result = {  
-    #     "credentials" : {
-    #         "apiKey" : uuid.uuid4(),    # this value will be retrieved from ServiceInstanceDoc 
-    #         "rpId" : "",    # remove if unnecessary
-    #         "appId" : ""    # remove if unnecessary
-    #     }
-    # }
+    #POST to Fido Admin to register client
+    # TODO
 
     result={"credentials":     {
     "createUserId": "createUserId",
@@ -438,6 +521,46 @@ def bind(instance_id, binding_id):
     return make_response(jsonify(result),201)
 
 
+    # try:
+    #     fido_response = requests.post(url, json={"redirect_uris":["https:/api/v1/relyingparties"]}, headers=headers,timeout=(10.0,10.0))
+    #     fido_response.raise_for_status()
+    # except requests.exceptions.ConnectionError as e:
+    #     error_response['error'] = str(e.args[0])
+    #     return make_response(error_response,500)  # TODO to define error code
+    # except requests.exceptions.ConnectTimeout as e:
+    #     error_response['error'] = 'Connection Timeout ' 
+    #     return make_response(error_response,500)  # TODO to define error code
+    # except requests.exceptions.HTTPError as e:
+    #     error_response['error'] = str(e.args[0])
+    #     return make_response(error_response,500)  # TODO to define error code
+     
+
+    # #Request Failed
+    # if fido_response.status_code != 201:
+    #     error_response['error'] = 'fido registration failed. am error =  ' + str(fido_response.status_code)
+    #     return make_response(error_response,500)  # TODO to define error code
+
+    # #Request Succeeded
+    # if openam_response.status_code == 201:
+    #     fido_result = fido_response.json()
+    #     #load credentials
+    #     credentials['credentials']['username'] = fido_result['id']
+    #     credentials['credentials']['apiKey'] = fido_result['apiKey']
+    #     return make_response(credentials,201) # TODO to define error code
+    # else:
+    #     return make_response('{unknown}',500) # TODO to define error code
+
+    # The returned result from Samsung Fido in success :
+
+    # {
+    # "createUserId": "createUserId",
+    # "status": "ENABLED",
+    # "statusMessage": "success",
+    # "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", 
+    # "name": "adminapi20161847",
+    # "id": "80b3af09-f901-4886-946c-c21c274a1dcc", 
+    # "statusCode": "1200"
+    # }
 
 
 #
@@ -454,13 +577,6 @@ def unbind(instance_id, binding_id):
     #
     # return:
     #     An empty JSON document is expected
-
-    # unbind would call the service here
-    # not done to keep our code simple for the tutorial
-
-    # 1. Check whether Binding Doc exist
-    #   1-a. if exist, remove the doc from db   <unbindServiceInstance>
-    #   1-b. if not, return empty result
 
     return jsonify(empty_result)
 
