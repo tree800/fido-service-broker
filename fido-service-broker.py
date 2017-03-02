@@ -119,16 +119,15 @@ fido_service = {
                 'description' :' FIDO Service is built to let you connect easily and to all of your services and applications. You can start analyzing your data immediately with familiar tools.'
             }
         ],
-        'featuredImageUrl' : 'https://cf-upsi-app.mybluemix.net/images/fidoimg-64x64.png',
-        'imageUrl' : 'https://cf-upsi-app.mybluemix.net/images/fidoimg-50x50.png',
-        'mediumImageUrl' : 'https://cf-upsi-app.mybluemix.net/images/fidoimg-32x32.png',
-        'smallImageUrl' : 'https://cf-upsi-app.mybluemix.net/images/fidoimg-24x24.png',
+        'featuredImageUrl' : 'http://fido-ui-service.mybluemix.net/images/fidoimg-64x64.png',
+        'imageUrl' : 'http://fido-ui-service.mybluemix.net/images/fidoimg-50x50.png',
+        'mediumImageUrl' : 'http://fido-ui-service.mybluemix.net/images/fidoimg-32x32.png',
+        'smallImageUrl' : 'http://fido-ui-service.mybluemix.net/images/fidoimg-24x24.png',
         'documentationUrl' : 'http://www.samsungsds.com/us/en/solutions/off/nex/nexsign.html',
         'instructionsUrl' : 'http://www.samsungsds.com/us/en/solutions/off/nex/nexsign.html',
         'termsUrl' : 'https://media.termsfeed.com/pdf/terms-and-conditions-template.pdf'
     }
 }
-
 
 ########################################################
 # Implement Cloud Foundry Broker API
@@ -223,7 +222,7 @@ def provision(instance_id):
     #     print('No database')
 
     # return basic service information
-    new_service = { "dashboard_url": service_dashboard+instance_id }
+    new_service = { "dashboard_url": "http://fido-ui-service.mybluemix.net" }
     return jsonify(new_service)
 
 
