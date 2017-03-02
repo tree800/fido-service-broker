@@ -244,7 +244,7 @@ def catalog():
     services={"services": [fido_service]}
     return jsonify(services)
 
-'''
+
 #
 # Provision
 #
@@ -287,19 +287,19 @@ def provision(instance_id):
     # Save API Key and RP ID from FidoAdmin
     print("In provision instance_id : ", instance_id)
 
-    if client:
-        apikey_data = {'API_Key':'1234567890'}
-        rp_id = {'rp_id':'0987654321'}
-        db.create_document(apikey_data)
-        db.create_document(rp_id)
-    else:
-        print('No database')
+    # if client:
+    #     apikey_data = {'API_Key':'1234567890'}
+    #     rp_id = {'rp_id':'0987654321'}
+    #     db.create_document(apikey_data)
+    #     db.create_document(rp_id)
+    # else:
+    #     print('No database')
 
     # return basic service information
     new_service = { "dashboard_url": service_dashboard+instance_id }
     return jsonify(new_service)
-'''
 
+'''
 
 #
 # Provision new code
@@ -342,7 +342,7 @@ def provision(instance_id):
     else:
         bottle.abort(400, 'Must have instance_id')
 
-
+'''
 
 #
 # Deprovision
@@ -370,7 +370,7 @@ def deprovision(instance_id):
 
     return jsonify(empty_result)
 
-'''
+
 #
 # Bind
 #
@@ -425,11 +425,19 @@ def bind(instance_id, binding_id):
     #     }
     # }
 
-    result={"credentials": {"uri": "testme"}}
+    result={"credentials":     {
+    "createUserId": "createUserId",
+    "status": "ENABLED",
+    "statusMessage": "success",
+    "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", 
+    "name": "adminapi20161847",
+    "id": "80b3af09-f901-4886-946c-c21c274a1dcc", 
+    "statusCode": "1200"
+    }}
 
     return make_response(jsonify(result),201)
-'''
 
+'''
 #
 # Bind
 #
@@ -462,7 +470,7 @@ def bind(instance_id, binding_id):
     # get the JSON document in the BODY
     binding_details = request.get_json()
     print("Binding details: " , binding_details)
-
+'''
 
      '''
      Bluemix returned binding info
@@ -478,6 +486,7 @@ def bind(instance_id, binding_id):
        }
     )
      '''
+     '''
     #TODO : 
     # Need to match the post headers and returned data in binding
 
@@ -488,8 +497,8 @@ def bind(instance_id, binding_id):
                 'id':”rp20161016-1”, 
                 'createUserId':"createUserId"
               }
-
-
+'''
+'''
     #POST to Fido Admin to register client
     #
     try:
@@ -521,6 +530,8 @@ def bind(instance_id, binding_id):
     else:
         return make_response('{unknown}',500) # TODO to define error code
 
+    '''
+
 
     ''' 
     The returned result from Samsung Fido in success :
@@ -529,9 +540,12 @@ def bind(instance_id, binding_id):
     "createUserId": "createUserId",
     "status": "ENABLED",
     "statusMessage": "success",
-    "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", "name": "adminapi20161847",
-    "id": "80b3af09-f901-4886-946c-c21c274a1dcc", "statusCode": "1200"
+    "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", 
+    "name": "adminapi20161847",
+    "id": "80b3af09-f901-4886-946c-c21c274a1dcc", 
+    "statusCode": "1200"
     }
+
     '''
 
 
