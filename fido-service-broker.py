@@ -88,87 +88,6 @@ app_id = "https://rp.mybluemix.net"
 create_user_id = "fido-service-broker"
 
 
-# api_key = ""; # {spName}.key = {Service Provider API Key}
-service_instance_doc = {
-    "instanceId" : "",
-    "planId" : "",  # no need to store
-    "serviceId" : "",  # no need to store
-    "orgId" : "",  # no need to store
-    "spaceGuid" : "",      # no need to store
-    "rpId" : "",    # Generate GUID from here(Service Broker), Pass it to RP Server Application when it's binding the service instance 
-    "rpName" : "",    # Generate GUID from here(Service Broker), Pass it to RP Server Application when it's binding the service instance
-    "appId" : "",    # Generate GUID from here(Service Broker), Pass it to RP Server Application when it's binding the service instance
-    "createUserId" : "",    # Service Broker
-    "apiKey" : ""
-}
-
-service_binding_doc = {
-    "instanceId" : "",
-    "bindingId" : "",
-    "planId" : "",  # no need to store
-    "serviceId" : "",  # no need to store
-    "appGuid" : "",  # no need to store
-    "bindingDetails" : {
-        "credentials" : {
-            "rpId" : "",    # Retrieve from service_instance_doc
-            "rpName" : "",    # Retrieve from service_instance_doc
-            "appId" : "",    # Retrieve from service_instance_doc
-            "apiKey" : "",    # Retrieve from service_instance_doc
-        },
-        "syslog_drain_url" : ""
-    }
-}
-
-
-#############################################################
-# Definition of Service and Plans : Sample
-#############################################################
-
-# Plans
-# fido_plan_a = {
-#     "name" : "fidoplan-a",
-#     "description" : "Describe the characteristics of this plan. For example, Dedicated schema and tablespace per service instance on a shared server. 1GB and 10GB of compressed database storage can hold up to 5GB and 50GB of uncompressed data respectively based on typical compression ratios.",
-#     "free" : True,
-#     "id" : uuid.uuid4(), # SHOULD BE UNIQUE
-#     "metadata" : {
-#         "bullets" :[
-#             "A description of the resources that can be used with the plan.",
-#             "1 Auth Module per instance. Can host 100 concurrent auth operation.",
-#             "1 GB Min per instance. 10 GB Max per instance."
-#         ],
-#         "costs":[
-#             {
-#                 "unitId" : "INSTANCES_PER_MONTH",
-#                 "unit" : "MONTHLY",
-#                 "partNumber" : ""
-#             }
-#         ],
-#     "displayName":"fidoPlanA"
-#     }
-# }
-
-# fido_plan_b = {
-#     "name" : "fidoplan-b",
-#     "description" : "Describe the characteristics of this plan. For example, Dedicated schema and tablespace per service instance on a shared server. 1GB and 10GB of compressed database storage can hold up to 5GB and 50GB of uncompressed data respectively based on typical compression ratios.",
-#     "free" : True,
-#     "id" : uuid.uuid4(), # SHOULD BE UNIQUE
-#     "metadata" : {
-#         "bullets" :[
-#             "A description of the resources that can be used with the plan.",
-#             "10 Auth Module per instance. Can host 1000 concurrent auth operation.",
-#             "10 GB Min per instance. 100 GB Max per instance.",
-#         ],
-#         "costs" :[
-#             {
-#                 "unitId" : "INSTANCES_PER_MONTH",
-#                 "unit" : "MONTHLY",
-#                 "partNumber" : ""
-#             }
-#         ],
-#         "displayName":"fidoPlanB"
-#     }
-# }
-
 
 # Service
 fido_service_id = uuid.uuid4() # Generate unique service ID
@@ -308,52 +227,6 @@ def provision(instance_id):
     return jsonify(new_service)
 
 
-
-'''
-
-#
-# Provision new code
-#
-@app.route('/v2/service_instances/<instance_id>', methods=['PUT'])
-@basic_auth.required
-def provision(instance_id):
-    # Provision an instance of this service for the org/space
-    # as provided in the JSON data
-    #
-    # PUT /v2/service_instances/<instance_id>:
-    #    <instance_id> provided by Bluemix Cloud Controller,
-    #   used for future requests like bind, unbind and deprovision
-    #
-    # BODY:
-    #     {
-    #       "service_id":        "<service-guid>",
-    #       "plan_id":           "<plan-guid>",
-    #       "organization_guid": "<org-guid>",
-    #       "space_guid":        "<space-guid>"
-    #     }
-    #
-    # return:
-    #     JSON document with service details
-
-    if request.headers['Content-Type'] != 'application/json':
-        abort(415, 'Unsupported Content-Type: expecting application/json')
-
-    # provision the service by calling out to the service itself
-    # not done here to keep the code simple for the tutorial
-    
-    # get the JSON document in the BODY
-    provision_details = request.get_json(force=True)
-    print("Provision details : ", provision_details)
-
-    # Must have instance id
-    if instance_id != None:
-        new_service = { "dashboard_url": service_dashboard+instance_id }
-        return jsonify(new_service)
-    else:
-        bottle.abort(400, 'Must have instance_id')
-
-'''
-
 #
 # Deprovision
 #
@@ -380,72 +253,6 @@ def deprovision(instance_id):
 
     return jsonify(empty_result)
 
-
-#
-# Bind
-#
-# @app.route('/v2/service_instances/<instance_id>/service_bindings/<binding_id>', methods=['PUT'])
-# @basic_auth.required
-# def bind(instance_id, binding_id):
-#     # Bind an existing instance with the given org and space
-#     #
-#     # PUT /v2/service_instances/<instance_id>/service_bindings/<binding_id>:
-#     #     <instance_id> is the Cloud Controller provided
-#     #       value used to provision the instance
-#     #     <binding_id> is provided by the Cloud Controller
-#     #       and will be used for future unbind requests
-#     #
-#     # BODY:
-#     #     {
-#     #       "plan_id":           "<plan-guid>",
-#     #       "service_id":        "<service-guid>",
-#     #       "app_guid":          "<app-guid>"
-#     #     }
-#     #
-#     # return:
-#     #     JSON document with credentails and access details
-#     #     for the service based on this binding
-#     #     http://docs.cloudfoundry.org/services/binding-credentials.html
-
-#     if request.headers['Content-Type'] != 'application/json':
-#         abort(415, 'Unsupported Content-Type: expecting application/json')
-
-#     # get the JSON document in the BODY
-#     binding_details = request.get_json()
-#     print("Binding details: " , binding_details)
-
-#     # bind would call the service here
-#     # not done to keep our code simple for the tutorial
-
-#     ### TODO
-#     # 1. Check the document of specific instance is already exist in db
-#     #   1-a. if exist, retrieve the ApiKey 
-#     #       2. Check whether Binding Doc exist
-#     #           2-a. if exist, update it with new values then return normal
-#     #           2-b. if not, create new ServiceBindingDoc   <bindServiceInstance>
-#     #   1-b. if not, return error
-
-
-#     # return result to the Bluemix Cloud Controller
-#     # result = {  
-#     #     "credentials" : {
-#     #         "apiKey" : uuid.uuid4(),    # this value will be retrieved from ServiceInstanceDoc 
-#     #         "rpId" : "",    # remove if unnecessary
-#     #         "appId" : ""    # remove if unnecessary
-#     #     }
-#     # }
-
-#     result={"credentials":     {
-#     "createUserId": "createUserId",
-#     "status": "ENABLED",
-#     "statusMessage": "success",
-#     "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", 
-#     "name": "adminapi20161847",
-#     "id": "80b3af09-f901-4886-946c-c21c274a1dcc", 
-#     "statusCode": "1200"
-#     }}
-
-#     return make_response(jsonify(result),201)
 
 
 #
@@ -583,19 +390,6 @@ def dashboard(instance_id):
     dashboard_page += "<img src='http://news.samsungsds.com/wp-content/uploads/2016/10/19-2.jpg' />"
     return dashboard_page
 
-# # SERVICE INSTANCE
-# def createServiceInstance(instance_id, req_body):
-#     return jsonify(empty_result)
-# def deleteServiceInstance(instance_id):
-#     return jsonify(empty_result)
-
-# # BINDING
-# def bindServiceInstance(instance_id, binding_id, service):
-#     return jsonify(empty_result)
-# def unbindServiceInstance(instance_id, binding_id):
-#     return jsonify(empty_result)
-# def unbindAllForServiceInstance(instance_id):
-#     return jsonify(empty_result)
 
 ########################################################
 # Catch-all section - return HTML page for testing
