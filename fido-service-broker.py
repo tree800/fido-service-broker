@@ -80,12 +80,12 @@ credentials = {'credentials': { \
 
 # Where to get these information? How to insert the values for each?
 # Provide a REST API to set the values ?  OR  use config.json ?
-fido_admin_url = "https://fido.mybluemix.net";    # {spName}.url = {FIDO Server URL}
+fido_admin_url = "https://fido.mybluemix.net"    # {spName}.url = {FIDO Server URL}
 
-rp_id = "rp-id-sample";     
-rp_name = "rp-name-sample";
-app_id = "https://rp.mybluemix.net"; 
-create_user_id = "fido-service-broker";
+rp_id = "rp-id-sample"     
+rp_name = "rp-name-sample"
+app_id = "https://rp.mybluemix.net"
+create_user_id = "fido-service-broker"
 
 
 # api_key = ""; # {spName}.key = {Service Provider API Key}
@@ -591,7 +591,7 @@ def dashboard(instance_id):
     # hardcoded HTML, but could be a rendered template, too
     # Consider offering customized page for different instances
     dashboard_page = "<img src='http://contents.dt.co.kr/images/201510/2015102802101860727001[2].jpg' />"
-    dashboard_page += "<h3>Welcome!!</h3> You discovered the dashboard for instance : " + instance_id;
+    dashboard_page += "<h3>Welcome!!</h3> You discovered the dashboard for instance : " + instance_id
     dashboard_page += "<img src='http://news.samsungsds.com/wp-content/uploads/2016/10/19-2.jpg' />"
     return dashboard_page
 
