@@ -97,7 +97,7 @@ fido_service = {
     'description' : 'fido service to showcase management of private brokers',
     'bindable' : True, 
     'tags' : ['private'], 
-    'plan_updateable' : True,
+    'plan_updateable' : False,
     'plans' : [fido_plans.plan_a(), fido_plans.plan_b()],
     'dashboard_client' : {
         'id' : uuid.uuid4(),
