@@ -5,6 +5,7 @@ from flask_basicauth import BasicAuth
 import json
 import uuid
 import service
+import requests
 # from cloudant import Cloudant
 
 
@@ -67,68 +68,15 @@ else:
     # we are local, so set service base
     service_base = "localhost:5000"
 
-service_dashboard = "http://"+service_base+"/fido-service/dashboard/"
-
-credentials = {'credentials': { \
-        'uri': service_dashboard, \
-        'username': 'empty', \
-        'apiKey': 'empty', \
-      }}
+service_dashboard = "http://fido-ui-service.mybluemix.net"
 
 #############################################################
 # Global Variables : FIDO Specific
 #############################################################
 
-# Where to get these information? How to insert the values for each?
-# Provide a REST API to set the values ?  OR  use config.json ?
-fido_admin_url = "https://fido.mybluemix.net"    # {spName}.url = {FIDO Server URL}
-
-rp_id = "rp-id-sample"     
-rp_name = "rp-name-sample"
-app_id = "https://rp.mybluemix.net"
-create_user_id = "fido-service-broker"
+fido_admin_url = "http://169.46.149.205:8102/api/v1/relyingparties"   
 
 
-
-# Service
-# fido_service_id = uuid.uuid4() # Generate unique service ID
-# fido_service = {
-#     'id' : fido_service_id, 
-#     'name' : 'fido-auth-service-demo',
-#     'description' : 'fido service to showcase management of private brokers',
-#     'bindable' : True, 
-#     'tags' : ['private'], 
-#     'plan_updateable' : False,
-#     'plans' : [fido_plans.plan_a(), fido_plans.plan_b()],
-#     'dashboard_client' : {
-#         'id' : uuid.uuid4(),
-#         'secret' : 'secret-1',
-#         'redirect_uri' : 'http://bluemix.net'
-#     },
-#     'metadata' : {
-#         'displayName' : 'Fido Service',
-#         'serviceMonitorApi' : 'https://cf-upsi-app.mybluemix.net/healthcheck',
-#         'providerDisplayName' : 'S.D.S',
-#         'longDescription' : 'Write full description of fido service',
-#         'bullets' : [
-#             {
-#                 'title' : 'Fast and Simple',
-#                 'description' : 'FIDO Service uses dynamic in-memory columnar technology and innovations, such as parallel vector processing and actionable compression to rapidly scan and return relevant data.'
-#             },
-#             {
-#                 'title' : 'Connectivity',
-#                 'description' :' FIDO Service is built to let you connect easily and to all of your services and applications. You can start analyzing your data immediately with familiar tools.'
-#             }
-#         ],
-#         'featuredImageUrl' : 'http://fido-ui-service.mybluemix.net/images/fidoimg-64x64.png',
-#         'imageUrl' : 'http://fido-ui-service.mybluemix.net/images/fidoimg-50x50.png',
-#         'mediumImageUrl' : 'http://fido-ui-service.mybluemix.net/images/fidoimg-32x32.png',
-#         'smallImageUrl' : 'http://fido-ui-service.mybluemix.net/images/fidoimg-24x24.png',
-#         'documentationUrl' : 'http://www.samsungsds.com/us/en/solutions/off/nex/nexsign.html',
-#         'instructionsUrl' : 'http://www.samsungsds.com/us/en/solutions/off/nex/nexsign.html',
-#         'termsUrl' : 'https://media.termsfeed.com/pdf/terms-and-conditions-template.pdf'
-#     }
-# }
 
 ########################################################
 # Implement Cloud Foundry Broker API
@@ -205,12 +153,6 @@ def provision(instance_id):
     # u'organization_guid': u'408022b1-6e6e-42f3-8104-c767bf952945', 
     # u'service_id': u'c45dcaa1-6dec-48ce-b6bc-b65cb96f437c'})
 
-
-    ### TODO
-    # 1. Check the document of specific instance is already exist in db
-    #   1-a. if exist, return with "already exist"
-    #   1-b. if not, store the new service_instance_doc    <createServiceInstance>
-
     # Save API Key and RP ID from FidoAdmin
     print("In provision instance_id : ", instance_id)
 
@@ -223,7 +165,7 @@ def provision(instance_id):
     #     print('No database')
 
     # return basic service information
-    new_service = { "dashboard_url": "http://fido-ui-service.mybluemix.net" }
+    new_service = { "dashboard_url": service_dashboard }
     return jsonify(new_service)
 
 
@@ -292,60 +234,67 @@ def bind(instance_id, binding_id):
     #TODO : 
     # Need to match the post headers and returned data in binding
 
-    #Prepare for headers
-    headers = {
-                'name':"TEST_RP_name", 
-                'appId':"https://samsung.com", 
-                'id':"rp20161016-1", 
-                'createUserId':"createUserId"
-    #                 fido.api.admin.key=562CFFEEED26C6C5B57E3575AFDEB
-    # admin.api.authorization.key=ABCDEFGHIJKLMNOPQRS1234567890
-              }
+
 
     #POST to Fido Admin to register client
     # TODO
 
-    result={"credentials":     {
-    "createUserId": "createUserId",
-    "status": "ENABLED",
-    "statusMessage": "success",
-    "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", 
-    "name": "adminapi20161847",
-    "id": "80b3af09-f901-4886-946c-c21c274a1dcc", 
-    "statusCode": "1200"
-    }}
+    # result={"credentials":     {
+    # "createUserId": "createUserId",
+    # "status": "ENABLED",
+    # "statusMessage": "success",
+    # "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", 
+    # "name": "adminapi20161847",
+    # "id": "80b3af09-f901-4886-946c-c21c274a1dcc", 
+    # "statusCode": "1200"
+    # }}
 
-    return make_response(jsonify(result),201)
+    # return make_response(jsonify(result),201)
 
+    #Prepare for headers
+    headers = {
+                'Authorization':"Basic QUJDREVGR0hJSktMTU5PUFFSUzEyMzQ1Njc4OTA="
+              }
 
-    # try:
-    #     fido_response = requests.post(url, json={"redirect_uris":["https:/api/v1/relyingparties"]}, headers=headers,timeout=(10.0,10.0))
-    #     fido_response.raise_for_status()
-    # except requests.exceptions.ConnectionError as e:
-    #     error_response['error'] = str(e.args[0])
-    #     return make_response(error_response,500)  # TODO to define error code
-    # except requests.exceptions.ConnectTimeout as e:
-    #     error_response['error'] = 'Connection Timeout ' 
-    #     return make_response(error_response,500)  # TODO to define error code
-    # except requests.exceptions.HTTPError as e:
-    #     error_response['error'] = str(e.args[0])
-    #     return make_response(error_response,500)  # TODO to define error code
+    data = {    'name':"TEST_RP_name", 
+                'appId':"https://samsung.com", 
+                'id':"rp20161016-1", 
+                'createUserId':"createUserId"
+            }
+
+    try:
+        fido_response = requests.post(fido_admin_url, data=json.dumps(data), headers=headers)
+        print("fido_response : ", fido_response)
+        fido_response.raise_for_status()
+        fido_response.status_code = 200
+    except requests.exceptions.ConnectionError as e:
+        error_response['error'] = str(e.args[0])
+        return make_response(error_response,fido_response.get('errorsCode',0))  
+    except requests.exceptions.ConnectTimeout as e:
+        error_response['error'] = 'Connection Timeout ' 
+        return make_response(error_response,fido_response.get('errorsCode',0))  
+    except requests.exceptions.HTTPError as e:
+        error_response['error'] = str(e.args[0])
+        return make_response(error_response,fido_response.get('errorsCode',0))  
      
 
-    # #Request Failed
-    # if fido_response.status_code != 201:
-    #     error_response['error'] = 'fido registration failed. am error =  ' + str(fido_response.status_code)
-    #     return make_response(error_response,500)  # TODO to define error code
+    #Request Failed
+    if fido_response.status_code != 200:
+        print("fido_response - error : ", fido_response)
+        error_response['error'] = 'fido registration failed. am error =  ' + str(fido_response.get('errorMessage',0))
+        return make_response(error_response,fido_response.get('errorsCode',0))  
 
-    # #Request Succeeded
-    # if openam_response.status_code == 201:
-    #     fido_result = fido_response.json()
-    #     #load credentials
-    #     credentials['credentials']['username'] = fido_result['id']
-    #     credentials['credentials']['apiKey'] = fido_result['apiKey']
-    #     return make_response(credentials,201) # TODO to define error code
-    # else:
-    #     return make_response('{unknown}',500) # TODO to define error code
+
+    #Request Succeeded
+    if openam_response.status_code == 200:
+        fido_result = fido_response.json()
+        # #load credentials
+        # credentials['credentials']['username'] = fido_result['id']
+        # credentials['credentials']['apiKey'] = fido_result['apiKey']
+
+        return make_response(fido_response,200) # TODO to define error code
+    else:
+        return make_response(fido_response,500) # TODO to define error code
 
     # The returned result from Samsung Fido in success :
 
@@ -383,14 +332,14 @@ def unbind(instance_id, binding_id):
 #
 ########################################################
 
-@app.route('/fido-service/dashboard/<instance_id>', methods=['GET'])
-def dashboard(instance_id):
-    # hardcoded HTML, but could be a rendered template, too
-    # Consider offering customized page for different instances
-    dashboard_page = "<img src='http://contents.dt.co.kr/images/201510/2015102802101860727001[2].jpg' />"
-    dashboard_page += "<h3>Welcome!!</h3> You discovered the dashboard for instance : " + instance_id
-    dashboard_page += "<img src='http://news.samsungsds.com/wp-content/uploads/2016/10/19-2.jpg' />"
-    return dashboard_page
+# @app.route('/fido-service/dashboard/<instance_id>', methods=['GET'])
+# def dashboard(instance_id):
+#     # hardcoded HTML, but could be a rendered template, too
+#     # Consider offering customized page for different instances
+#     dashboard_page = "<img src='http://contents.dt.co.kr/images/201510/2015102802101860727001[2].jpg' />"
+#     dashboard_page += "<h3>Welcome!!</h3> You discovered the dashboard for instance : " + instance_id
+#     dashboard_page += "<img src='http://news.samsungsds.com/wp-content/uploads/2016/10/19-2.jpg' />"
+#     return dashboard_page
 
 
 ########################################################
@@ -409,9 +358,9 @@ def catch_all(path):
     return page
 
 
-port = os.getenv('PORT', '5000')
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=int(port),threaded=True)
-    #app.run(host='0.0.0.0', port=int(port),debug=True,threaded=True)
+# port = os.getenv('PORT', '5000')
+# if __name__ == "__main__":
+#     app.run(host='0.0.0.0', port=int(port),threaded=True)
+#app.run(host='0.0.0.0', port=int(port),debug=True,threaded=True)
 
 
