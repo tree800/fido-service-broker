@@ -239,62 +239,61 @@ def bind(instance_id, binding_id):
     #POST to Fido Admin to register client
     # TODO
 
-    # result={"credentials":     {
-    # "createUserId": "createUserId",
-    # "status": "ENABLED",
-    # "statusMessage": "success",
-    # "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", 
-    # "name": "adminapi20161847",
-    # "id": "80b3af09-f901-4886-946c-c21c274a1dcc", 
-    # "statusCode": "1200"
-    # }}
+    result={"credentials":     {
+    "createUserId": "createUserId",
+    "status": "ENABLED",
+    "statusMessage": "success",
+    "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", 
+    "name": "adminapi20161847",
+    "id": "80b3af09-f901-4886-946c-c21c274a1dcc", 
+    "statusCode": "1200"
+    }}
+    return make_response(jsonify(result),201)
 
-    # return make_response(jsonify(result),201)
+    # #Prepare for headers
+    # headers = {
+    #             'Authorization':"Basic QUJDREVGR0hJSktMTU5PUFFSUzEyMzQ1Njc4OTA="
+    #           }
 
-    #Prepare for headers
-    headers = {
-                'Authorization':"Basic QUJDREVGR0hJSktMTU5PUFFSUzEyMzQ1Njc4OTA="
-              }
+    # data = {    'name':"TEST_RP_name", 
+    #             'appId':"https://samsung.com", 
+    #             'id':"rp20161016-1", 
+    #             'createUserId':"createUserId"
+    #         }
 
-    data = {    'name':"TEST_RP_name", 
-                'appId':"https://samsung.com", 
-                'id':"rp20161016-1", 
-                'createUserId':"createUserId"
-            }
-
-    try:
-        fido_response = requests.post(fido_admin_url, data=json.dumps(data), headers=headers)
-        print("fido_response : ", fido_response)
-        fido_response.raise_for_status()
-        fido_response.status_code = 200
-    except requests.exceptions.ConnectionError as e:
-        error_response['error'] = str(e.args[0])
-        return make_response(error_response,fido_response.get('errorsCode',0))  
-    except requests.exceptions.ConnectTimeout as e:
-        error_response['error'] = 'Connection Timeout ' 
-        return make_response(error_response,fido_response.get('errorsCode',0))  
-    except requests.exceptions.HTTPError as e:
-        error_response['error'] = str(e.args[0])
-        return make_response(error_response,fido_response.get('errorsCode',0))  
+    # try:
+    #     fido_response = requests.post(fido_admin_url, data=json.dumps(data), headers=headers)
+    #     print("fido_response : ", fido_response)
+    #     fido_response.raise_for_status()
+    #     fido_response.status_code = 200
+    # except requests.exceptions.ConnectionError as e:
+    #     error_response['error'] = str(e.args[0])
+    #     return make_response(error_response,fido_response.get('errorsCode',0))  
+    # except requests.exceptions.ConnectTimeout as e:
+    #     error_response['error'] = 'Connection Timeout ' 
+    #     return make_response(error_response,fido_response.get('errorsCode',0))  
+    # except requests.exceptions.HTTPError as e:
+    #     error_response['error'] = str(e.args[0])
+    #     return make_response(error_response,fido_response.get('errorsCode',0))  
      
 
-    #Request Failed
-    if fido_response.status_code != 200:
-        print("fido_response - error : ", fido_response)
-        error_response['error'] = 'fido registration failed. am error =  ' + str(fido_response.get('errorMessage',0))
-        return make_response(error_response,fido_response.get('errorsCode',0))  
+    # #Request Failed
+    # if fido_response.status_code != 200:
+    #     print("fido_response - error : ", fido_response)
+    #     error_response['error'] = 'fido registration failed. am error =  ' + str(fido_response.get('errorMessage',0))
+    #     return make_response(error_response,fido_response.get('errorsCode',0))  
 
 
-    #Request Succeeded
-    if openam_response.status_code == 200:
-        fido_result = fido_response.json()
-        # #load credentials
-        # credentials['credentials']['username'] = fido_result['id']
-        # credentials['credentials']['apiKey'] = fido_result['apiKey']
+    # #Request Succeeded
+    # if openam_response.status_code == 200:
+    #     fido_result = fido_response.json()
+    #     # #load credentials
+    #     # credentials['credentials']['username'] = fido_result['id']
+    #     # credentials['credentials']['apiKey'] = fido_result['apiKey']
 
-        return make_response(fido_response,200) # TODO to define error code
-    else:
-        return make_response(fido_response,500) # TODO to define error code
+    #     return make_response(fido_response,200) # TODO to define error code
+    # else:
+    #     return make_response(fido_response,500) # TODO to define error code
 
     # The returned result from Samsung Fido in success :
 
