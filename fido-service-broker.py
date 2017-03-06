@@ -93,7 +93,7 @@ create_user_id = "fido-service-broker"
 fido_service_id = uuid.uuid4() # Generate unique service ID
 fido_service = {
     'id' : fido_service_id, 
-    'name' : 'fido-auth-service',
+    'name' : 'fido-auth-service-demo',
     'description' : 'fido service to showcase management of private brokers',
     'bindable' : True, 
     'tags' : ['private'], 
