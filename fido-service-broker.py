@@ -297,6 +297,8 @@ def bind(instance_id, binding_id):
                 'appId':"https://samsung.com", 
                 'id':"rp20161016-1", 
                 'createUserId':"createUserId"
+    #                 fido.api.admin.key=562CFFEEED26C6C5B57E3575AFDEB
+    # admin.api.authorization.key=ABCDEFGHIJKLMNOPQRS1234567890
               }
 
     #POST to Fido Admin to register client
