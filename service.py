@@ -34,9 +34,9 @@ def fidosvc():
 	            }
 	        ],
 	        'featuredImageUrl' : 'http://fido-ui-service.mybluemix.net/images/nexsign/Nexsign_icon_64x64.png',
-	        'imageUrl' : 'http://fido-ui-service.mybluemix.net/images/nexsign/Nexsign_icon_50x50.png',
-	        'mediumImageUrl' : 'http://fido-ui-service.mybluemix.net/nexsign/Nexsign_icon_32x32.png',
-	        'smallImageUrl' : 'http://fido-ui-service.mybluemix.net/nexsign/Nexsign_icon_24x24.png',
+	        'imageUrl' : 'http://fido-ui-service.mybluemix.net/images/images/nexsign/Nexsign_icon_50x50.png',
+	        'mediumImageUrl' : 'http://fido-ui-service.mybluemix.net/images/nexsign/Nexsign_icon_32x32.png',
+	        'smallImageUrl' : 'http://fido-ui-service.mybluemix.net/images/nexsign/Nexsign_icon_24x24.png',
 	        'documentationUrl' : 'http://www.samsungsds.com/us/en/solutions/off/nex/nexsign.html',
 	        'instructionsUrl' : 'http://www.samsungsds.com/us/en/solutions/off/nex/nexsign.html',
 	        'termsUrl' : 'https://media.termsfeed.com/pdf/terms-and-conditions-template.pdf'
