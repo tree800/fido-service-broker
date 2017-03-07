@@ -255,11 +255,11 @@ def bind(instance_id, binding_id):
                 'Authorization':"Basic QUJDREVGR0hJSktMTU5PUFFSUzEyMzQ1Njc4OTA="
               }
 
-    data = {  
-                'name':"MyBankingService", 
-                'appId':"https://mybankingservice.mybluemix.net/trp/uaf/trustedfacets", 
-                'id':”83b39eb7-3ac9-4fe6-8fc2-0c42fa015606”, 
-                'createUserId':"admin"
+    data = {
+            'name':"MyBankingService", 
+            'appId':"https://mybankingservice.mybluemix.net/trp/uaf/trustedfacets", 
+            'id':”83b39eb7-3ac9-4fe6-8fc2-0c42fa015606”, 
+            'createUserId':"admin"
             }
 
     try:
