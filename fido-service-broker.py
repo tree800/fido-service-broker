@@ -255,10 +255,11 @@ def bind(instance_id, binding_id):
                 'Authorization':"Basic QUJDREVGR0hJSktMTU5PUFFSUzEyMzQ1Njc4OTA="
               }
 
-    data = {    'name':"TEST_RP_name", 
-                'appId':"https://samsung.com", 
-                'id':"rp20161016-1", 
-                'createUserId':"createUserId"
+    data = {  
+                'name':"MyBankingService", 
+                'appId':"https://mybankingservice.mybluemix.net/trp/uaf/trustedfacets", 
+                'id':”83b39eb7-3ac9-4fe6-8fc2-0c42fa015606”, 
+                'createUserId':"admin"
             }
 
     try:
@@ -280,8 +281,8 @@ def bind(instance_id, binding_id):
     #Request Failed
     if fido_response.status_code != 200:
         print("fido_response - error : ", fido_response.reason)
-        error_response = 'fido registration failed. am error =  ' + fido_response.text
-        return make_response(error_response,fido_response)  
+        error_response = 'fido registration failed. am error =  ' + fido_response.tet
+        return make_response(error_response,fido_response)  x
 
 
     #Request Succeeded
