@@ -250,51 +250,66 @@ def bind(instance_id, binding_id):
     # }}
     # return make_response(jsonify(result),201)
 
+    result={"credentials":     
+                {
+                  "statusCode": "1200",
+                  "id": '4fc8a11a-91d1-4c3a-b5b1-25fab8b410ee',
+                  "status": "ENABLED",
+                  "name": "MyBankingService",
+                  "apiKey": 'e147109e-793c-4d95-baa3-ff3d30984f5a',
+                  "statusMessage": "success",
+                  "createUserId": "admin"
+                }
+            }
+    return make_response(jsonify(result),201)
+
+
     # #Prepare for headers
     headers = {
                 'Authorization':"Basic QUJDREVGR0hJSktMTU5PUFFSUzEyMzQ1Njc4OTA="
               }
 
     data = {
-            'name':"MyBankingService", 
-            'appId':"https://mybankingservice.mybluemix.net/trp/uaf/trustedfacets", 
-            'id':”83b39eb7-3ac9-4fe6-8fc2-0c42fa015606”, 
-            'createUserId':"admin"
+            'name':'MyBankingService', 
+            'appId':'https://mybankingservice.mybluemix.net/trp/uaf/trustedfacets', 
+            'id':'83b39eb7-3ac9-4fe6-8fc2-0c42fa015606', 
+            'createUserId':'admin'
             }
 
-    try:
-        fido_response = requests.post(fido_admin_url, data=json.dumps(data), headers=headers)
-        print("fido_response text : ", fido_response.text)
-        # print("fido_response json : ", fido_response.json())
-        fido_response.status_code = 200
-    except requests.exceptions.ConnectionError as e:
-        error_response = str(e.args[0])
-        return make_response(error_response,500)  
-    except requests.exceptions.ConnectTimeout as e:
-        error_response = 'Connection Timeout ' 
-        return make_response(error_response,500)  
-    except requests.exceptions.HTTPError as e:
-        error_response = str(e.args[0])
-        return make_response(error_response,500)  
+
+    # try:
+    #     fido_response = requests.post(fido_admin_url, data=json.dumps(data), headers=headers)
+    #     print("fido_response text : ", fido_response.text)
+    #     # print("fido_response json : ", fido_response.json())
+    #     fido_response.status_code = 200
+    # except requests.exceptions.ConnectionError as e:
+    #     error_response = str(e.args[0])
+    #     return make_response(error_response,500)  
+    # except requests.exceptions.ConnectTimeout as e:
+    #     error_response = 'Connection Timeout ' 
+    #     return make_response(error_response,500)  
+    # except requests.exceptions.HTTPError as e:
+    #     error_response = str(e.args[0])
+    #     return make_response(error_response,500)  
      
 
-    #Request Failed
-    if fido_response.status_code != 200:
-        print("fido_response - error : ", fido_response.reason)
-        error_response = 'fido registration failed. am error =  ' + fido_response.tet
-        return make_response(error_response,fido_response)  x
+    # #Request Failed
+    # if fido_response.status_code != 200:
+    #     print("fido_response - error : ", fido_response.reason)
+    #     error_response = 'fido registration failed. am error =  ' + fido_response.tet
+    #     return make_response(error_response,fido_response)
 
 
-    #Request Succeeded
-    if openam_response.status_code == 200:
-        fido_result = fido_response.json()
-        # #load credentials
-        # credentials['credentials']['username'] = fido_result['id']
-        # credentials['credentials']['apiKey'] = fido_result['apiKey']
+    # #Request Succeeded
+    # if openam_response.status_code == 200:
+    #     fido_result = fido_response.json()
+    #     # #load credentials
+    #     # credentials['credentials']['username'] = fido_result['id']
+    #     # credentials['credentials']['apiKey'] = fido_result['apiKey']
 
-        return make_response(fido_result,200) # TODO to define error code
-    else:
-        return make_response(fido_response.text,500) # TODO to define error code
+    #     return make_response(fido_result,200) # TODO to define error code
+    # else:
+    #     return make_response(fido_response.text,500) # TODO to define error code
 
     # The returned result from Samsung Fido in success :
 
