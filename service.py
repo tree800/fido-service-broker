@@ -7,7 +7,7 @@ def fidosvc():
 	fido_service_id = uuid.uuid4() # Generate unique service ID
 	fido_service = {
 	    'id' : fido_service_id, 
-	    'name' : 'fido-auth-service-demo',
+	    'name' : 'nexsign-auth-service',
 	    'description' : 'fido service to showcase management of private brokers',
 	    'bindable' : True, 
 	    'tags' : ['private'], 
@@ -19,7 +19,7 @@ def fidosvc():
 	        'redirect_uri' : 'http://bluemix.net'
 	    },
 	    'metadata' : {
-	        'displayName' : 'Fido Service',
+	        'displayName' : 'Nexsign Service',
 	        'serviceMonitorApi' : 'https://cf-upsi-app.mybluemix.net/healthcheck',
 	        'providerDisplayName' : 'S.D.S',
 	        'longDescription' : 'Write full description of fido service',

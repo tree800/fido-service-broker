@@ -68,7 +68,8 @@ else:
     # we are local, so set service base
     service_base = "localhost:5000"
 
-
+# Error response
+error_response = {'error':'unspecified'}
 
 #############################################################
 # Global Variables : FIDO Specific
@@ -77,6 +78,11 @@ else:
 fido_admin_url = "http://169.46.149.205:8102/api/v1/relyingparties"   
 service_dashboard = "http://fido-ui-service.mybluemix.net"
 
+# credentials = {'credentials': { \
+#         'uri': service_dashboard, \
+#         'id': 'empty', \
+#         'apiKey': 'empty', \
+#       }}
 
 ########################################################
 # Implement Cloud Foundry Broker API
@@ -146,16 +152,10 @@ def provision(instance_id):
     # get the JSON document in the BODY
     provision_details = request.get_json(force=True)
     print("Provision details : ", provision_details)
-
-    #  Bluemix Returned provision details
-    # ('Provision details : ', {u'plan_id': u'2c441056-a48a-40d4-931e-616de3bfcb8d', 
-    # u'space_guid': u'a328d651-a5a0-4d9d-b2ed-257802d11ba6', 
-    # u'organization_guid': u'408022b1-6e6e-42f3-8104-c767bf952945', 
-    # u'service_id': u'c45dcaa1-6dec-48ce-b6bc-b65cb96f437c'})
-
-    # Save API Key and RP ID from FidoAdmin
     print("In provision instance_id : ", instance_id)
 
+    
+    # Save API Key and RP ID from FidoAdmin
     # if client:
     #     apikey_data = {'API_Key':'1234567890'}
     #     rp_id = {'rp_id':'0987654321'}
@@ -231,11 +231,6 @@ def bind(instance_id, binding_id):
     print("Binding details: " , binding_details)
 
 
-    #TODO : 
-    # Need to match the post headers and returned data in binding
-
-
-
     #POST to Fido Admin to register client
     # TODO
 
@@ -250,18 +245,18 @@ def bind(instance_id, binding_id):
     # }}
     # return make_response(jsonify(result),201)
 
-    result={"credentials":     
-                {
-                  "statusCode": "1200",
-                  "id": '4fc8a11a-91d1-4c3a-b5b1-25fab8b410ee',
-                  "status": "ENABLED",
-                  "name": "MyBankingService",
-                  "apiKey": 'e147109e-793c-4d95-baa3-ff3d30984f5a',
-                  "statusMessage": "success",
-                  "createUserId": "admin"
-                }
-            }
-    return make_response(jsonify(result),201)
+    # result={"credentials":     
+    #             {
+    #               "statusCode": "1200",
+    #               "id": '4fc8a11a-91d1-4c3a-b5b1-25fab8b410ee',
+    #               "status": "ENABLED",
+    #               "name": "MyBankingService",
+    #               "apiKey": '5cb69f54-4f1f-4b0f-911f-e1d09dc360f1',
+    #               "statusMessage": "success",
+    #               "createUserId": "admin"
+    #             }
+    #         }
+    # return make_response(jsonify(result),201)
 
 
     # #Prepare for headers
@@ -277,11 +272,78 @@ def bind(instance_id, binding_id):
             }
 
 
+    try:
+        fido_response = requests.get(fido_admin_url, headers=headers)
+        fido_response_object = fido_response.json()
+        # print("fido_response_object : ", fido_response_object)
+        # print("fido_response_object['items'] : ", fido_response_object['items'])
+        # print("fido_response_object['items'] appid : ", fido_response_object['items'][0]['appId'])
+
+        for item in fido_response_object['items']:
+            if item['id'] == '83b39eb7-3ac9-4fe6-8fc2-0c42fa015606' :
+                credentials = {'credentials': {'uri': service_dashboard, 'id': item['id'], 'apiKey': item['apiKey']}}
+                # print("credentials : ", jsonify(credentials))
+                return make_response(jsonify(credentials),201)
+        
+    except requests.exceptions.ConnectionError as e:
+        error_response['error'] = str(e.args[0])
+        return dict(data=error_response)
+    except requests.exceptions.ConnectTimeout as e:
+        error_response = 'Connection Timeout ' 
+        return dict(data=error_response)
+    except requests.exceptions.HTTPError as e:
+        error_response = str(e.args[0])
+        return dict(data=error_response)
+
+
+    # result={"credentials":     {
+    # "createUserId": "createUserId",
+    # "status": "ENABLED",
+    # "statusMessage": "success",
+    # "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", 
+    # "name": "adminapi20161847",
+    # "id": "80b3af09-f901-4886-946c-c21c274a1dcc", 
+    # "statusCode": "1200"
+    # }}
+    # return make_response(jsonify(result),201)
+
+
+
+    #     if item['id'].str() is '83b39eb7-3ac9-4fe6-8fc2-0c42fa015606' :
+    #         print("item['id'].str()", item['id'].str())
+
+    # for item in fido_response_object['items']:
+    #     if item['appId'] == 'https://mybankingservice.mybluemix.net/trp/uaf/trustedfacets' :
+    #         fido_result = item.json()
+    #         print("fido_result : ", fido_result)
+    #         fido_response_object.status_code = 200
+    #     else :
+    #         fido_response = requests.post(fido_admin_url, data=json.dumps(data), headers=headers)
+    #         print("Register Fido Id : ", fido_response.text)
+    #         fido_result = fido_response.json()
+    #         fido_response_object.status_code = 200
+
+    # return fido_response_object
     # try:
-    #     fido_response = requests.post(fido_admin_url, data=json.dumps(data), headers=headers)
-    #     print("fido_response text : ", fido_response.text)
+    #     fido_result = ''
     #     # print("fido_response json : ", fido_response.json())
-    #     fido_response.status_code = 200
+    #     print("fido register get begin ")
+    #     fido_response = requests.get(fido_admin_url, headers=headers)
+    #     print("fido register get end ")
+    #     fido_response_object = fido_response.json()
+
+    #     print("fido_response_object : ", fido_response_object)
+
+    #     for item in fido_response_object['items']:
+    #         if item['appId'] == 'https://mybankingservice.mybluemix.net/trp/uaf/trustedfacets' :
+    #             fido_result = item.json()
+    #             print("fido_result : ", fido_result)
+    #             fido_response_object.status_code = 200
+    #         else :
+    #             fido_response = requests.post(fido_admin_url, data=json.dumps(data), headers=headers)
+    #             print("Register Fido Id : ", fido_response.text)
+    #             fido_result = fido_response.json()
+    #             fido_response_object.status_code = 200
     # except requests.exceptions.ConnectionError as e:
     #     error_response = str(e.args[0])
     #     return make_response(error_response,500)  
@@ -294,34 +356,22 @@ def bind(instance_id, binding_id):
      
 
     # #Request Failed
-    # if fido_response.status_code != 200:
-    #     print("fido_response - error : ", fido_response.reason)
-    #     error_response = 'fido registration failed. am error =  ' + fido_response.tet
-    #     return make_response(error_response,fido_response)
+    # if fido_response_object.status_code != 200:
+    #     print("fido_response - error : ", fido_response_object.reason)
+    #     error_response = 'fido registration failed. am error =  ' + fido_response_object.text
+    #     return make_response(error_response,fido_response_object)
 
 
     # #Request Succeeded
-    # if openam_response.status_code == 200:
-    #     fido_result = fido_response.json()
+    # if fido_response_object.status_code == 200:
+    #     # fido_result = fido_response.json()
     #     # #load credentials
     #     # credentials['credentials']['username'] = fido_result['id']
     #     # credentials['credentials']['apiKey'] = fido_result['apiKey']
 
     #     return make_response(fido_result,200) # TODO to define error code
     # else:
-    #     return make_response(fido_response.text,500) # TODO to define error code
-
-    # The returned result from Samsung Fido in success :
-
-    # {
-    # "createUserId": "createUserId",
-    # "status": "ENABLED",
-    # "statusMessage": "success",
-    # "apiKey": "2ce0195c-8d02-49fe-86c9-02e75c994f80", 
-    # "name": "adminapi20161847",
-    # "id": "80b3af09-f901-4886-946c-c21c274a1dcc", 
-    # "statusCode": "1200"
-    # }
+    #     return make_response(fido_response_object.text,500) # TODO to define error code
 
 
 #
