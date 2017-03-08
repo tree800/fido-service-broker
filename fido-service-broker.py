@@ -154,7 +154,7 @@ def provision(instance_id):
     print("Provision details : ", provision_details)
     print("In provision instance_id : ", instance_id)
 
-    
+
     # Save API Key and RP ID from FidoAdmin
     # if client:
     #     apikey_data = {'API_Key':'1234567890'}
@@ -306,8 +306,6 @@ def bind(instance_id, binding_id):
     # "statusCode": "1200"
     # }}
     # return make_response(jsonify(result),201)
-
-
 
     #     if item['id'].str() is '83b39eb7-3ac9-4fe6-8fc2-0c42fa015606' :
     #         print("item['id'].str()", item['id'].str())
