@@ -3,3 +3,4 @@ flask_basicauth
 uuid
 cloudant==2.4.0
 requests
+pip==9.0.1
