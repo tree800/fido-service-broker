@@ -273,7 +273,7 @@ def bind(instance_id, binding_id):
 
 
     try:
-        fido_response = requests.get(fido_admin_url, headers=headers)
+        fido_response = requests.get(fido_admin_url, headers=headers, timeout=5)
         fido_response_object = fido_response.json()
         # print("fido_response_object : ", fido_response_object)
         # print("fido_response_object['items'] : ", fido_response_object['items'])
