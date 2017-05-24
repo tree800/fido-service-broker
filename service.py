@@ -19,7 +19,7 @@ def fidosvc():
 	        'redirect_uri' : 'http://bluemix.net'
 	    },
 	    'metadata' : {
-	        'displayName' : 'Nexsign Service',
+	        'displayName' : 'Nexsign Service Backup',
 	        'serviceMonitorApi' : 'https://cf-upsi-app.mybluemix.net/healthcheck',
 	        'providerDisplayName' : 'S.D.S',
 	        'longDescription' : 'Write full description of fido service',
